@@ -1,0 +1,111 @@
+version: 2
+
+anchors:
+  - &prd
+    environment:
+      META_GCLOUD_SERVICE_KEY: ${PRD_GCLOUD_SERVICE_KEY}
+      GOOGLE_CLOUD_KEYFILE_JSON: .credentials/terraform@rugamaga-prd.json
+      GOOGLE_APPLICATION_CREDENTIALS: .credentials/terraform@rugamaga-prd.json
+      TERRAFORM_WORKSPACE: prd
+
+  - &dev
+    environment:
+      META_GCLOUD_SERVICE_KEY: ${DEV_GCLOUD_SERVICE_KEY}
+      GOOGLE_CLOUD_KEYFILE_JSON: .credentials/terraform@rugamaga-dev.json
+      GOOGLE_APPLICATION_CREDENTIALS: .credentials/terraform@rugamaga-dev.json
+      TERRAFORM_WORKSPACE: dev
+
+  - &defaults
+    docker:
+      - image: hashicorp/terraform:0.12.28
+    working_directory: /terraform
+
+  - &plan
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: create credential file
+          command: eval echo $META_GCLOUD_SERVICE_KEY > $GOOGLE_CLOUD_KEYFILE_JSON
+      - run:
+          name: Init terraform
+          command: terraform init
+      - run:
+          name: Validate terraform
+          command: terraform validate
+      - run:
+          name: Select workspace
+          command: terraform workspace select ${TERRAFORM_WORKSPACE}
+      - run:
+          name: Plan terraform
+          command: terraform plan
+
+  - &apply
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: create credential file
+          command: eval echo $META_GCLOUD_SERVICE_KEY > $GOOGLE_CLOUD_KEYFILE_JSON
+      - run:
+          name: Init terraform
+          command: terraform init
+      - run:
+          name: Validate terraform
+          command: terraform validate
+      - run:
+          name: Select workspace
+          command: terraform workspace select ${TERRAFORM_WORKSPACE}
+      - run:
+          name: Apply terraform
+          command: terraform apply -auto-approve
+
+jobs:
+  plan_prd:
+    <<: *prd
+    <<: *plan
+
+  apply_prd:
+    <<: *prd
+    <<: *apply
+
+  plan_dev:
+    <<: *dev
+    <<: *plan
+
+  apply_dev:
+    <<: *dev
+    <<: *apply
+
+workflows:
+  version: 2
+
+  plan:
+    jobs:
+      - plan_prd
+      - plan_dev
+
+  prd:
+    jobs:
+      - apply_prd:
+          filters:
+            tags:
+              only: /^PRD\/v.*$/
+            branches:
+              ignore: /.*/
+
+  dev:
+    jobs:
+      - apply_dev:
+          filters:
+            branches:
+              only: master
+
+  dev-explicit:
+    jobs:
+      - apply_dev:
+          filters:
+            tags:
+              only: /^DEV\/v.*$/
+            branches:
+              ignore: /.*/

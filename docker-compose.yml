@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  terraform:
+    image: hashicorp/terraform:0.12.28
+    volumes:
+      - ./:/terraform
+    working_dir: /terraform
+    environment:
+      GOOGLE_CLOUD_KEYFILE_JSON: ./.credentials/terraform@rugamaga-dev.json
+      GOOGLE_APPLICATION_CREDENTIALS: ./.credentials/terraform@rugamaga-dev.json
