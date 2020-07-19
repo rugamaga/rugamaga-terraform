@@ -20,7 +20,7 @@ resource "google_container_cluster" "primary" {
 
   min_master_version = data.google_container_engine_versions.target.latest_master_version
 
-  location = "asia-northeast1"
+  location = "asia-northeast1-a"
 
   initial_node_count       = 1
   remove_default_node_pool = true
@@ -34,12 +34,12 @@ resource "google_container_node_pool" "nodes" {
   name     = "nodes-rugamaga"
   cluster  = google_container_cluster.primary.name
   version  = data.google_container_engine_versions.target.latest_node_version
-  location = "asia-northeast1"
+  location = "asia-northeast1-a"
 
-  initial_node_count = 1
+  initial_node_count = 2
   autoscaling {
-    min_node_count = 1
-    max_node_count = 2
+    min_node_count = 2
+    max_node_count = 4
   }
 
   management {
