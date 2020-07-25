@@ -73,5 +73,9 @@ module "domain" {
       name   = "rugamaga-root"
       domain = local.workspace.domain_name
     },
+    {
+      name   = "rugamaga-image"
+      domain = "image.${local.workspace.domain_name}"
+    },
   ]
 }
