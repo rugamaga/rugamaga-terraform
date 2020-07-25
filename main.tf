@@ -70,8 +70,12 @@ module "domain" {
 
   domains = [
     {
-      name   = "rugamaga-root"
+      name   = "root-rugamaga"
       domain = local.workspace.domain_name
+    },
+    {
+      name   = "image-rugamaga"
+      domain = "image.${local.workspace.domain_name}"
     },
   ]
 }
