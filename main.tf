@@ -48,7 +48,7 @@ resource "google_container_node_pool" "nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "e2-small"
+    machine_type = local.workspace.machine_type
 
     metadata = {
       disable-legacy-endpoints = "true"
