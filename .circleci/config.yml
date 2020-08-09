@@ -80,14 +80,12 @@ jobs:
 workflows:
   version: 2
 
-  plan:
-    jobs:
-      - plan_prd
-      - plan_dev
-
   prd:
     jobs:
+      - plan_prd
       - apply_prd:
+          requires:
+            - plan_prd
           filters:
             tags:
               only: /^PRD\/v.*$/
@@ -96,7 +94,10 @@ workflows:
 
   dev:
     jobs:
+      - plan_dev
       - apply_dev:
+          requires:
+            - plan_dev
           filters:
             branches:
               only: master
